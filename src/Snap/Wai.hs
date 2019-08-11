@@ -31,13 +31,9 @@ import           System.IO.Streams        (InputStream)
 import qualified System.IO.Streams        as Stream (read, write)
 
 -- | Converts a 'Network.Wai.Application' to a 'Snap' handler.
-serveWai :: MonadSnap m
-         => Application
-         -- ^ The Wai app to run in the handler.
-         -> m ()
+serveWai :: MonadSnap m => Application -> m ()
 serveWai app = do
   req <- convertRequest <$> Snap.getRequest
-  liftIO $ putStrLn "Running app handler"
   rvar <- liftIO (newIORef id :: IO (IORef (Snap.Response -> Snap.Response)))
   ResponseReceived <- liftIO $ app req $ \res -> do
       writeIORef rvar $ case res of
@@ -49,9 +45,7 @@ serveWai app = do
           responseFile path mpart . responseBase st hdrs
         ResponseRaw{} ->
           error "ResponseRaw is not supported"
-
       pure ResponseReceived
-
   liftIO (readIORef rvar) >>= modifyResponse
 
 ----------------------------------------------------------------------------
