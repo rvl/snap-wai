@@ -15,14 +15,11 @@ build-type:          Simple
 library
   exposed-modules:   Snap.Wai
   -- other-modules:
-  default-extensions:
-      OverloadedStrings
   -- other-extensions:
   build-depends:       base >=4.12 && <4.13
                      , snap-core
                      , http-types
                      , wai
-                     , vault
                      , io-streams
                      , text
                      , bytestring
@@ -33,6 +30,7 @@ library
 
   hs-source-dirs:      src
   default-language:    Haskell2010
+  ghc-options:         -Wall
 
 test-suite test
   default-language:
@@ -49,13 +47,11 @@ test-suite test
     , snap-core
     , http-types
     , wai
-    , vault
     , io-streams
     , text
     , bytestring
     , bytestring-builder
     , case-insensitive
-    , monad-control
     , containers
     , directory
     , deepseq

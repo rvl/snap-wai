@@ -1,28 +1,27 @@
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DataKinds     #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE LambdaCase    #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Main where
 
-import Test.Hspec
-import Snap.Test
-import Snap.Wai
-import qualified Data.Map as M
-import Network.Wai
-import Network.HTTP.Types
 import qualified Data.ByteString.Char8 as S8
-import Servant ((:>), Get , JSON, Server)
-import Servant.Server (serve)
-import Data.Proxy (Proxy(..))
-import           Data.Vault.Lazy (empty)
-import Data.Text (Text)
+import qualified Data.Map              as M
+import           Data.Proxy            (Proxy (..))
+import           Data.Text             (Text)
+import           Network.HTTP.Types
+import           Network.Wai
+import           Servant               ((:>), Get, JSON, Server)
+import           Servant.Server        (serve)
+import           Snap.Test
+import           Snap.Wai
+import           Test.Hspec
 
 main :: IO ()
 main = hspec $ do
   describe "plain wai" $ do
     it "handles requests" $ do
-      let sh = serveWai empty waiApp
+      let sh = serveWai waiApp
       res <- runHandler (get "foo/bar" M.empty) sh
 
       body <- getResponseBody res
@@ -34,7 +33,7 @@ main = hspec $ do
 
   describe "servant api" $ do
     it "handles requests" $ do
-      let sh = serveWai empty servantApp
+      let sh = serveWai servantApp
       res <- runHandler (get "api" M.empty) sh
 
       body <- getResponseBody res
@@ -45,7 +44,7 @@ main = hspec $ do
       assertBodyContains "Hello" res
 
 waiApp :: Application
-waiApp req respond = do
+waiApp _req respond = do
   putStrLn "responding"
   respond $ responseLBS status200 [] "Hello Wai"
 
