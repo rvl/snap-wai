@@ -16,7 +16,7 @@ library
   exposed-modules:   Snap.Wai
   -- other-modules:
   -- other-extensions:
-  build-depends:       base >=4.12 && <4.13
+  build-depends:       base >=4.11 && <4.13
                      , snap-core
                      , http-types
                      , wai
@@ -45,6 +45,10 @@ test-suite test
       base
     , snap-wai
     , snap-core
+    , snap-server
+    , http-conduit
+    , aeson
+    , async
     , http-types
     , wai
     , io-streams
@@ -69,5 +73,3 @@ test-suite test
       test
   main-is:
       Main.hs
-  -- other-modules:
-    -- Snap.WaiSpec
