@@ -31,12 +31,9 @@ import qualified System.IO.Streams        as Stream (read, write)
 -- | Converts a 'Network.Wai.Application' to a 'Snap' handler.
 serveWai :: MonadSnap m => Application -> m ()
 serveWai app = do
-  liftIO $ putStrLn "serveWai start"
   req <- convertRequest <$> Snap.getRequest
-  liftIO $ putStrLn $ "converted request: " ++ show req
   rvar <- liftIO (newIORef id :: IO (IORef (Snap.Response -> Snap.Response)))
   ResponseReceived <- liftIO $ app req $ \res -> do
-    putStrLn "Response received from app"
     writeIORef rvar $ case res of
       ResponseBuilder st hdrs builder ->
         responseBuilder builder . responseBase st hdrs
@@ -73,12 +70,7 @@ convertRequest req@Request{..} = defaultRequest
   }
 
 readSnapRequest :: InputStream ByteString -> IO ByteString
--- readSnapRequest = fmap (fromMaybe B8.empty) . Stream.read
-readSnapRequest s = do
-  putStrLn "readSnapRequest"
-  chunk <- Stream.read s
-  putStrLn $ "chunk is " ++ show chunk
-  pure (fromMaybe B8.empty chunk)
+readSnapRequest = fmap (fromMaybe B8.empty) . Stream.read
 
 convertRequestHeaders :: [(CI ByteString, ByteString)] -> H.RequestHeaders
 convertRequestHeaders = id
@@ -106,7 +98,6 @@ convertResponseHeaders = id
 -- | Convert a 'ResponseBuilder'
 responseBuilder :: Builder -> Snap.Response -> Snap.Response
 responseBuilder builder = setResponseBody $ \out -> do
-  putStrLn "ResponseBuilder writing"
   Stream.write (Just builder) out
   pure out
 
@@ -119,7 +110,6 @@ responseStream st reqIsHead strmbdy
 
 responseStreaming :: Wai.StreamingBody -> Snap.Response -> Snap.Response
 responseStreaming getBody = setResponseBody $ \out -> do
-  putStrLn "ResponseStreaming"
   getBody (\b -> Stream.write (Just b) out) (pure ())
   pure out
 

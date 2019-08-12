@@ -10,7 +10,6 @@ import           Control.Concurrent.MVar  (newEmptyMVar, putMVar, takeMVar)
 import           Control.Monad            (void)
 import           Data.Aeson               (Value)
 import qualified Data.ByteString.Char8    as S8
-import qualified Data.ByteString.Lazy     as BL
 import qualified Data.Map                 as M
 import           Data.Proxy               (Proxy (..))
 import           Data.Text                (Text)
@@ -53,15 +52,12 @@ main = hspec $ do
       let cfg = setPort 12345 $ setStartupHook (putMVar started) mempty
       race_ (httpServe cfg sh) $ do
         void $ takeMVar started
-        res <- Http.httpBS "http://localhost:1234/api/hello"
+        res <- Http.httpBS "http://localhost:12345/api/hello"
         Http.getResponseStatusCode res `shouldBe` 200
         Http.getResponseBody res `shouldSatisfy` S8.isInfixOf "Hello"
 
 waiApp :: Application
-waiApp req respond = do
-  body <- BL.toStrict <$> strictRequestBody req
-  S8.putStrLn $ "the request body is " <> body
-  respond $ responseLBS status200 [] "Hello Wai"
+waiApp _req respond = respond $ responseLBS status200 [] "Hello Wai"
 
 type Api = "api" :>
   ( "hello" :> Get '[JSON] Text
